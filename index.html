@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Disease Information Agent | Agricultural Pathology AI</title>
+  <meta name="description" content="Intelligent agricultural pathology assistant providing verified diagnosis, treatment, prevention, and safety guidelines for plant diseases.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Ambient background glow effects -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand-badge">
+        <span class="pulse-dot"></span>
+        <span>USDA &bull; FAO &bull; Extension Grounded</span>
+      </div>
+      <h1 class="main-title">
+        <span class="text-gradient">Plant Disease</span> Information Agent
+      </h1>
+      <p class="subtitle">
+        Expert agronomic pathology assistant delivering structured, verified disease profiles, biological treatments, and environmental management protocols.
+      </p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="mode-nav">
+      <button class="nav-tab active" id="tab-search" onclick="switchTab('search')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Disease Name Search</span>
+      </button>
+      <button class="nav-tab" id="tab-image" onclick="switchTab('image')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        <span>Leaf Image Diagnosis (Future ML Hook)</span>
+        <span class="badge-new">Next-Gen</span>
+      </button>
+    </nav>
+
+    <!-- Search Section -->
+    <main>
+      <section class="card glass-card search-card" id="search-section">
+        <div class="input-wrapper">
+          <label for="disease-input" class="input-label">Enter Disease Name</label>
+          <div class="search-bar">
+            <div class="search-icon-wrapper">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+            <input 
+              type="text" 
+              id="disease-input" 
+              placeholder="e.g. Tomato Early Blight, Apple Scab, or 'early blight tomato'..."
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <button class="icon-button clear-btn" id="btn-clear" onclick="clearInput()" title="Clear input" aria-label="Clear input">
+              &times;
+            </button>
+            <button class="btn btn-primary search-btn" id="btn-search" onclick="handleSearch()">
+              <span>Search Disease</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+
+          <!-- Autocomplete Dropdown -->
+          <div id="autocomplete-list" class="autocomplete-box hidden"></div>
+        </div>
+
+        <!-- Quick Select Pills -->
+        <div class="quick-examples">
+          <span class="quick-label">Try Examples:</span>
+          <div class="pills-container">
+            <button class="pill" onclick="selectQuick('Tomato Early Blight')">Tomato Early Blight</button>
+            <button class="pill" onclick="selectQuick('Tomato Late Blight')">Tomato Late Blight</button>
+            <button class="pill" onclick="selectQuick('Potato Late Blight')">Potato Late Blight</button>
+            <button class="pill" onclick="selectQuick('Apple Scab')">Apple Scab</button>
+            <button class="pill" onclick="selectQuick('Powdery Mildew')">Powdery Mildew</button>
+            <button class="pill" onclick="selectQuick('Rice Blast')">Rice Blast</button>
+            <button class="pill" onclick="selectQuick('Bacterial Wilt')">Bacterial Wilt</button>
+            <button class="pill pill-messy" onclick="selectQuick('early blight tomato')" title="Tests automatic normalization">early blight tomato</button>
+            <button class="pill pill-unknown" onclick="selectQuick('Unknown Disease XYZ')" title="Tests unknown disease safety handling">Unknown Disease XYZ</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Image Diagnosis Section (Classification Model Extension) -->
+      <section class="card glass-card image-card hidden" id="image-section">
+        <div class="image-upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <input type="file" id="file-input" accept="image/*" style="display:none;" onchange="handleFileSelected(event)">
+          <div class="upload-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          </div>
+          <h3>Drop infected plant leaf image here, or <span class="accent-text">browse</span></h3>
+          <p class="upload-hint">Supports JPEG, PNG, WEBP. Feeds vision model prediction directly to the Information Agent pipeline.</p>
+          <div id="image-preview-container" class="hidden">
+            <img id="image-preview" src="" alt="Leaf sample">
+            <span id="image-filename"></span>
+          </div>
+        </div>
+        <div class="image-actions">
+          <button class="btn btn-secondary" onclick="runSampleImage('tomato_early_blight.jpg')">Test With Sample Leaf</button>
+        </div>
+      </section>
+
+      <!-- Loading State -->
+      <div id="loading-indicator" class="loading-container hidden">
+        <div class="scanner-wrapper">
+          <div class="plant-loader-icon">🌿</div>
+          <div class="scan-beam"></div>
+        </div>
+        <div class="loading-status-text">
+          <h4 id="loading-step-title">Normalizing & Validating Query...</h4>
+          <p id="loading-step-desc">Querying agricultural extension pathology records</p>
+        </div>
+      </div>
+
+      <!-- Error / Unknown / Ambiguity Card -->
+      <div id="alert-container" class="hidden"></div>
+
+      <!-- Results Display Container -->
+      <section id="results-container" class="results-wrapper hidden">
+        <div class="results-header">
+          <div class="results-title-group">
+            <span class="badge" id="res-badge-type">Fungal</span>
+            <h2 id="res-disease-title">Tomato Early Blight</h2>
+            <p class="res-meta">Host Plant: <strong id="res-plant-name">Tomato</strong> &bull; Query: <span id="res-query-name"></span></p>
+          </div>
+          <div class="header-actions">
+            <div class="severity-box" id="res-severity-box">
+              <span class="severity-label">Severity</span>
+              <span class="severity-val" id="res-severity-val">Moderate to High</span>
+            </div>
+            <button class="btn btn-copy" id="btn-copy" onclick="copyFormattedReport()" title="Copy clean formatted report">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span id="copy-btn-text">Copy Report</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+          <!-- Main Overview Card -->
+          <div class="grid-card full-width glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">📋</span>
+              <h3>Overview & Description</h3>
+            </div>
+            <p id="res-description" class="lead-text"></p>
+          </div>
+
+          <!-- Symptoms Card -->
+          <div class="grid-card glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">🔍</span>
+              <h3>Observable Symptoms</h3>
+            </div>
+            <ul id="res-symptoms-list" class="styled-list symptoms-list"></ul>
+          </div>
+
+          <!-- Etiology & Spread Card -->
+          <div class="grid-card glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">🦠</span>
+              <h3>Causal Pathogen & Spread</h3>
+            </div>
+            <div class="info-block">
+              <span class="block-label">Causal Pathogen</span>
+              <p id="res-cause" class="highlight-text"></p>
+            </div>
+            <div class="info-block">
+              <span class="block-label">Transmission Mechanisms</span>
+              <p id="res-spread"></p>
+            </div>
+            <div class="info-block">
+              <span class="block-label">Affected Plant Parts</span>
+              <div id="res-affected-parts" class="tags-container"></div>
+            </div>
+          </div>
+
+          <!-- Favorable Environmental Conditions -->
+          <div class="grid-card full-width glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">🌦️</span>
+              <h3>Favorable Environmental Conditions</h3>
+            </div>
+            <ul id="res-conditions-list" class="styled-list conditions-list"></ul>
+          </div>
+
+          <!-- Treatment & Management -->
+          <div class="grid-card glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">💊</span>
+              <h3>Active Treatment & Management</h3>
+            </div>
+            <ul id="res-treatment-list" class="styled-list treatment-list"></ul>
+          </div>
+
+          <!-- Prevention Protocols -->
+          <div class="grid-card glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">🛡️</span>
+              <h3>Agronomic Prevention</h3>
+            </div>
+            <ul id="res-prevention-list" class="styled-list prevention-list"></ul>
+          </div>
+
+          <!-- Organic & Biological Control -->
+          <div class="grid-card glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">🌿</span>
+              <h3>Organic & Biological Management</h3>
+            </div>
+            <ul id="res-organic-list" class="styled-list organic-list"></ul>
+          </div>
+
+          <!-- Chemical Management & Safety -->
+          <div class="grid-card glass-card">
+            <div class="card-heading">
+              <span class="section-emoji">🧪</span>
+              <h3>Chemical Controls & Safety</h3>
+            </div>
+            <ul id="res-chemical-list" class="styled-list chemical-list"></ul>
+            <div class="safety-box">
+              <strong>⚠️ Safety Notice:</strong> Follow all product label restrictions, proper PPE, and pre-harvest intervals.
+            </div>
+          </div>
+
+          <!-- When to Seek Help -->
+          <div class="grid-card full-width glass-card help-card">
+            <div class="card-heading">
+              <span class="section-emoji">🧑‍🌾</span>
+              <h3>When to Seek Agricultural Expert Help</h3>
+            </div>
+            <p id="res-when-help"></p>
+          </div>
+
+          <!-- Sources & References -->
+          <div class="grid-card full-width glass-card sources-card">
+            <div class="card-heading">
+              <span class="section-emoji">📚</span>
+              <h3>Authoritative Agricultural Sources</h3>
+            </div>
+            <ul id="res-sources-list" class="sources-tags"></ul>
+          </div>
+        </div>
+
+        <!-- Disclaimer Banner -->
+        <div class="disclaimer-banner">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <p id="res-disclaimer">Note: This information is for educational purposes. For accurate diagnosis and pesticide recommendations, consult a local agricultural expert and always follow the product label.</p>
+        </div>
+
+        <!-- Raw Text Toggle -->
+        <div class="raw-output-toggle">
+          <button class="btn btn-secondary btn-sm" onclick="toggleRawView()">
+            <span id="raw-toggle-text">Show Plain Text Format (Requirement 6)</span>
+          </button>
+          <pre id="raw-formatted-output" class="raw-box hidden"></pre>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Plant Disease Information Agent &bull; Engineered for Farmers, Agronomists & Students &bull; Grounded in USDA ARS &bull; FAO &bull; UC IPM &bull; Cornell AgriLife</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
